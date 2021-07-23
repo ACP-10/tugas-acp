@@ -1,9 +1,16 @@
 package routes
 
-import "github.com/labstack/echo/v4"
+import (
+	"tugas-acp/controllers"
+
+	"github.com/labstack/echo/v4")
+
 
 func New() *echo.Echo {
 	e := echo.New()
 	
+	e.GET("/cart", controllers.GetCartController)
+	e.POST("/cart", controllers.CreateCartController)
+
 	return e
 }

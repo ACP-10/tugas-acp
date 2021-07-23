@@ -6,7 +6,7 @@ import (
 	"tugas-acp/models/category"
 	"tugas-acp/models/customer"
 
-	"tugas-acp/models/cartItem"
+	cartitem "tugas-acp/models/cartItem"
 	"tugas-acp/models/product"
 
 	"gorm.io/driver/mysql"
@@ -26,7 +26,7 @@ type ConfigDB struct {
 func InitConfigDB() ConfigDB {
 	var configDB = ConfigDB{
 		DB_Username: "root",
-		DB_Password: "",
+		DB_Password: "Ikhda123",
 		DB_Host:     "localhost",
 		DB_Port:     "3306",
 		DB_Database: "acp10",

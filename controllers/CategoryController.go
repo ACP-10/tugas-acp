@@ -64,3 +64,16 @@ func UpdateCategoryController(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, categoryDB)
 }
+
+func DeleteCategoryController(c echo.Context) error {
+	category_id, _ := strconv.Atoi(c.Param("id"))
+
+	var categoryDB category.Category
+	err := configs.DB.Where("category_id", category_id).Delete(&categoryDB).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, categoryDB)
+}

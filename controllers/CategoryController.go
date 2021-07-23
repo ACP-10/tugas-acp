@@ -48,24 +48,19 @@ func GetCategoryController(c echo.Context) error {
 }
 
 func UpdateCategoryController(c echo.Context) error {
-	var categoryData []category.Category
-	var err error
+	var categoryUpdate category.CategoryUpdate
 	category_id, _ := strconv.Atoi(c.Param("id"))
-	category_name := c.FormValue("categoryName")
 
-	categoryData, err = database.UpdateCategory(category_id, category_name)
+	c.Bind(&categoryUpdate)
+
+	var categoryDB category.Category
+	configs.DB.First(&categoryDB, "category_id", category_id)
+	categoryDB.CategoryName = categoryUpdate.CategoryName
+	err := configs.DB.Save(&categoryDB).Error
 
 	if err != nil {
-		return c.JSON(http.StatusOK, BaseResponse(
-			http.StatusInternalServerError,
-			"Failed Get Data",
-			categoryData,
-		))
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, BaseResponse(
-		http.StatusOK,
-		"Success Get Data",
-		categoryData,
-	))
+	return c.JSON(http.StatusCreated, categoryDB)
 }

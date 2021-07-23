@@ -49,9 +49,9 @@ func GetCartController(c echo.Context) error {
 }
 
 // func UpdateCartController(c echo.Context) error {
-	
+
 // }
 
-func DeleteCartController(c echo.Context) error {
-	
-}
+// func DeleteCartController(c echo.Context) error {
+
+// }

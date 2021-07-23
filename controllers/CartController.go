@@ -12,7 +12,7 @@ import (
 func CreateCartController(c echo.Context) error {
 
 	var cartCreate cart.CartCreate
-	c.Bind(cartCreate)
+	c.Bind(&cartCreate)
 
 	var cartDB cart.Cart
 	cartDB.IsCheckout = cartCreate.IsCheckout
@@ -52,6 +52,6 @@ func GetCartController(c echo.Context) error {
 	
 // }
 
-func DeleteCartController(c echo.Context) error {
+// func DeleteCartController(c echo.Context) error {
 	
-}
+// }

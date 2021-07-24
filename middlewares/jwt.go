@@ -2,11 +2,11 @@ package middlewares
 
 import (
 	"time"
+	"tugas-acp/constants"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
 )
-
-const JWT_SECRET = "ACP-10"
 
 func GenerateJWT(customerId int) (string, error) {
 	claims := jwt.MapClaims{}
@@ -15,5 +15,15 @@ func GenerateJWT(customerId int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte(JWT_SECRET))
+	return token.SignedString([]byte(constants.JWT_SECRET))
+}
+
+func GetUserIdFromJWT(c echo.Context) int {
+	customer := c.Get("customer").(*jwt.Token)
+	if customer.Valid {
+		claims := customer.Claims.(jwt.MapClaims)
+		customerId := claims["customerId"].(float64)
+		return int(customerId)
+	}
+	return 0
 }

@@ -1,36 +1,40 @@
 package routes
 
 import (
+	"tugas-acp/constants"
 	"tugas-acp/controllers"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func New() *echo.Echo {
 	e := echo.New()
+	eAuth := e.Group("")
+	eAuth.Use(middleware.JWT([]byte(constants.JWT_SECRET)))
 
-	e.GET("/category", controllers.GetCategoryController)
-	e.POST("/category", controllers.CreateCategoryController)
-	e.PUT("/category/:id", controllers.UpdateCategoryController)
-	e.DELETE("/category/:id", controllers.DeleteCategoryController)
+	eAuth.GET("/category", controllers.GetCategoryController)
+	eAuth.POST("/category", controllers.CreateCategoryController)
+	eAuth.PUT("/category/:id", controllers.UpdateCategoryController)
+	eAuth.DELETE("/category/:id", controllers.DeleteCategoryController)
 
-	e.GET("/cart", controllers.GetCartController)
-	e.POST("/cart", controllers.CreateCartController)
-	e.PUT("/cart/:id", controllers.UpdateCartController)
-	e.DELETE("/cart/:id", controllers.DeleteCartController)
+	eAuth.GET("/cart", controllers.GetCartController)
+	eAuth.POST("/cart", controllers.CreateCartController)
+	eAuth.PUT("/cart/:id", controllers.UpdateCartController)
+	eAuth.DELETE("/cart/:id", controllers.DeleteCartController)
 
 	e.POST("/customer/register", controllers.RegisterCustomerController)
 	e.POST("/customer/login", controllers.LoginCustomerController)
 
-	e.GET("/cartItem/:id", controllers.GetCartItemControllers)
-	e.POST("/cartItem", controllers.CreateCartItemController)
-	e.PUT("/cartItem/:id", controllers.UpdateCartItemController)
-	e.DELETE("/cartItem/:id", controllers.DeleteCartItemController)
+	eAuth.GET("/cartItem/:id", controllers.GetCartItemControllers)
+	eAuth.POST("/cartItem", controllers.CreateCartItemController)
+	eAuth.PUT("/cartItem/:id", controllers.UpdateCartItemController)
+	eAuth.DELETE("/cartItem/:id", controllers.DeleteCartItemController)
 
-	e.GET("/product/:id", controllers.GetProductByCategoryController)
-	e.POST("/product", controllers.CreateProductControler)
-	e.PUT("/product/:id", controllers.UpdateProductController)
-	e.DELETE("/product/:id", controllers.DeleteProductController)
+	eAuth.GET("/product/:id", controllers.GetProductByCategoryController)
+	eAuth.POST("/product", controllers.CreateProductControler)
+	eAuth.PUT("/product/:id", controllers.UpdateProductController)
+	eAuth.DELETE("/product/:id", controllers.DeleteProductController)
 
 	return e
 }

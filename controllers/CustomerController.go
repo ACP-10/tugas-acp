@@ -24,7 +24,11 @@ func RegisterCustomerController(c echo.Context) error {
 
 	hashedPassword, err := HashPassword(customerRegister.Password)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Register Customer",
+			err.Error(),
+		))
 	}
 
 	var customerDB customer.Customer
@@ -34,7 +38,11 @@ func RegisterCustomerController(c echo.Context) error {
 
 	e := configs.DB.Create(&customerDB).Error
 	if e != nil {
-		return c.JSON(http.StatusInternalServerError, e.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Register Customer",
+			err.Error(),
+		))
 	}
 
 	var userResponse = customer.CustomerResponse{
@@ -44,7 +52,11 @@ func RegisterCustomerController(c echo.Context) error {
 		CreatedAt:  customerDB.CreatedAt,
 		UpdatedAt:  customerDB.UpdatedAt,
 	}
-	return c.JSON(http.StatusCreated, userResponse)
+	return c.JSON(http.StatusCreated, BaseResponse(
+		http.StatusOK,
+		"Success Register Customer",
+		userResponse,
+	))
 }
 
 func LoginCustomerController(c echo.Context) error {
@@ -57,7 +69,11 @@ func LoginCustomerController(c echo.Context) error {
 
 	err := VerifyPassword(hashedPassword, customerLogin.Password)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Login Customer",
+			err.Error(),
+		))
 	}
 
 	token, _ := middlewares.GenerateJWT(customerDB.CustomerId)
@@ -66,5 +82,9 @@ func LoginCustomerController(c echo.Context) error {
 		Email: customerDB.Email,
 		Token: token,
 	}
-	return c.JSON(http.StatusOK, userResponse)
+	return c.JSON(http.StatusOK, BaseResponse(
+		http.StatusOK,
+		"Success Login Customer",
+		userResponse,
+	))
 }

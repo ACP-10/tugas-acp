@@ -20,10 +20,18 @@ func CreateCategoryController(c echo.Context) error {
 	err := configs.DB.Create(&categoryDB).Error
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Create Data",
+			err.Error(),
+		))
 	}
 
-	return c.JSON(http.StatusCreated, categoryDB)
+	return c.JSON(http.StatusCreated, BaseResponse(
+		http.StatusOK,
+		"Success Create Data Category",
+		categoryDB,
+	))
 }
 
 func GetCategoryController(c echo.Context) error {
@@ -59,10 +67,18 @@ func UpdateCategoryController(c echo.Context) error {
 	err := configs.DB.Save(&categoryDB).Error
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Update Data",
+			err.Error(),
+		))
 	}
 
-	return c.JSON(http.StatusCreated, categoryDB)
+	return c.JSON(http.StatusOK, BaseResponse(
+		http.StatusOK,
+		"Success Update Data Category",
+		categoryDB,
+	))
 }
 
 func DeleteCategoryController(c echo.Context) error {
@@ -72,8 +88,16 @@ func DeleteCategoryController(c echo.Context) error {
 	err := configs.DB.Where("category_id", category_id).Delete(&categoryDB).Error
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Delete Data",
+			err.Error(),
+		))
 	}
 
-	return c.JSON(http.StatusOK, "Success delete category.")
+	return c.JSON(http.StatusOK, BaseResponse(
+		http.StatusOK,
+		"Success delete category",
+		"",
+	))
 }

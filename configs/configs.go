@@ -5,6 +5,7 @@ import (
 	"tugas-acp/models/cart"
 	"tugas-acp/models/category"
 	"tugas-acp/models/customer"
+	"tugas-acp/models/payment"
 
 	cartitem "tugas-acp/models/cartItem"
 	"tugas-acp/models/product"
@@ -26,8 +27,8 @@ type ConfigDB struct {
 func InitConfigDB() ConfigDB {
 	var configDB = ConfigDB{
 		DB_Username: "root",
-		// DB_Password: "",
-		DB_Password: "Ikhda123", // comment this
+		DB_Password: "",
+		// DB_Password: "Ikhda123", // comment this
 		DB_Host:     "localhost",
 		DB_Port:     "3306",
 		DB_Database: "acp10",
@@ -59,4 +60,5 @@ func Migration() {
 	DB.AutoMigrate(&category.Category{})
 	DB.AutoMigrate(&customer.Customer{})
 	DB.AutoMigrate(&product.Product{})
+	DB.AutoMigrate(&payment.Payment{})
 }

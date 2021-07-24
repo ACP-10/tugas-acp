@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"tugas-acp/configs"
 	"tugas-acp/lib/database"
+	"tugas-acp/middlewares"
 	"tugas-acp/models/cart"
 	cartitem "tugas-acp/models/cartItem"
 	"tugas-acp/models/payment"
@@ -31,17 +32,46 @@ func CreateCartController(c echo.Context) error {
 }
 
 func GetCartController(c echo.Context) error {
-	var cartData []cart.Cart
+	var cartData []cart.CartResult
 	var err error
+	var cartItem []cartitem.CartItemResult
 
-	customerId := c.QueryParam("customerId")
+	// jika ingin memasukkan customerId sendiri
 
-	if customerId != "" {
-		customerId, _ := strconv.Atoi(customerId)
-		cartData, err = database.GetCartByCustomer(customerId, false)
-	} else {
-		cartData, err = database.GetCartAll()
+	// customerId := c.QueryParam("customerId")
+	// if customerId != "" {
+	// 	customerId, _ := strconv.Atoi(customerId)
+	// 	cartData, err = database.GetCartByCustomer(customerId, false)
+	// } else {
+	// 	cartData, err = database.GetCartAll()
+	// }
+
+	cartAll := c.QueryParam("cartAll")
+	if cartAll == "true" {
+		var cartDataAll []cart.Cart
+		cartDataAll, err = database.GetCartAll()
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, BaseResponse(
+				http.StatusInternalServerError,
+				"Failed Get Data",
+				cartDataAll,
+			))
+		}
+	
+		return c.JSON(http.StatusOK, BaseResponse(
+			http.StatusOK,
+			"Success Get Data Cart",
+			cartDataAll,
+		))
 	}
+
+	customerId := middlewares.GetUserIdFromJWT(c)
+
+	cartData, err = database.GetCartByCustomer(customerId,false)
+	cartItem, _ = database.GetCartItemByCartId(cartData[0].CartId)
+	
+	cartData[0].Item = cartItem
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(
@@ -75,6 +105,7 @@ func UpdateCartController(c echo.Context) error {
 		c.Bind(&paymentCreate)
 		var paymentDB payment.Payment
 		paymentDB.CartId = cart_id
+		paymentDB.IsPaid = false
 		total, e := database.GetTotalPayment(cart_id)
 		if e != nil {
 			return c.JSON(http.StatusInternalServerError, e.Error())
@@ -85,6 +116,8 @@ func UpdateCartController(c echo.Context) error {
 		if er != nil {
 			return c.JSON(http.StatusInternalServerError, er.Error())
 		}
+
+		return c.JSON(http.StatusCreated, paymentDB)
 	}
 
 	if err != nil {

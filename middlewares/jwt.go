@@ -19,7 +19,7 @@ func GenerateJWT(customerId int) (string, error) {
 }
 
 func GetUserIdFromJWT(c echo.Context) int {
-	customer := c.Get("customer").(*jwt.Token)
+	customer := c.Get("user").(*jwt.Token)
 	if customer.Valid {
 		claims := customer.Claims.(jwt.MapClaims)
 		customerId := claims["customerId"].(float64)

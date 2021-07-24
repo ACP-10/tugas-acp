@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"tugas-acp/configs"
 	"tugas-acp/lib/database"
+	"tugas-acp/middlewares"
+	"tugas-acp/models/cart"
 	cartitem "tugas-acp/models/cartItem"
 
 	"github.com/labstack/echo/v4"
@@ -13,10 +15,40 @@ import (
 
 func CreateCartItemController(c echo.Context) error{
 	var cartItemCreate cartitem.CartItemCreate
+	var cartCheck cart.Cart
+	var cartId int
 	c.Bind(&cartItemCreate)
 
+	er := configs.DB.First(&cartCheck, "cart_id", cartItemCreate.CartId).Error
+
+	if er != nil {
+
+		customerId := middlewares.GetUserIdFromJWT(c)
+
+		var cartDB cart.Cart
+		cartDB.IsCheckout = false
+		cartDB.CustomerId = customerId
+
+		err := configs.DB.Create(&cartDB).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+		// return c.JSON(http.StatusInternalServerError, BaseResponse(
+		// 	http.StatusInternalServerError,
+		// 	"CartId not found",
+		// 	"",
+		// ))
+		cartId = cartDB.CartId
+	}
+
 	var cartItemDb cartitem.CartItem
-	cartItemDb.CartId = cartItemCreate.CartId
+	if cartId != 0 {
+		cartItemDb.CartId = cartId
+	}else{
+		cartItemDb.CartId = cartItemCreate.CartId
+	}
 	cartItemDb.ProductId = cartItemCreate.ProductId
 	cartItemDb.Quantity = cartItemCreate.Quantity
 
@@ -29,6 +61,15 @@ func CreateCartItemController(c echo.Context) error{
 			err.Error(),
 		))
 	}
+
+	if cartId != 0 {
+		return c.JSON(http.StatusOK, BaseResponse(
+			http.StatusOK,
+			"Success Create Data Cart&CartItem",
+			cartItemDb,
+		))
+	}
+
 	return c.JSON(http.StatusOK, BaseResponse(
 		http.StatusOK,
 		"Success Create Data CartItem",

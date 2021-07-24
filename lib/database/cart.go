@@ -20,3 +20,4 @@ func GetCartByCustomer(customerId int, isCheckout bool)(dataresult []cart.Cart, 
 	}
 	return
 }
+

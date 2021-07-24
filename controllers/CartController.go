@@ -6,6 +6,7 @@ import (
 	"tugas-acp/configs"
 	"tugas-acp/lib/database"
 	"tugas-acp/models/cart"
+	cartitem "tugas-acp/models/cartItem"
 
 	"github.com/labstack/echo/v4"
 )
@@ -79,6 +80,7 @@ func DeleteCartController(c echo.Context) error {
 
 	var cartDB cart.Cart
 	err := configs.DB.Where("cart_id", cart_id).Delete(&cartDB).Error
+	configs.DB.Where("cart_id",cart_id).Delete(&cartitem.CartItem{})
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

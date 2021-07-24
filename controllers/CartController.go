@@ -32,7 +32,14 @@ func GetCartController(c echo.Context) error {
 	var cartData []cart.Cart
 	var err error
 
-	cartData, err = database.GetCartAll()
+	customerId := c.QueryParam("customerId")
+
+	if customerId != ""{
+		customerId, _  := strconv.Atoi(customerId)
+		cartData, err = database.GetCartByCustomer(customerId, false)
+	} else{		
+		cartData, err = database.GetCartAll()
+	}
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(

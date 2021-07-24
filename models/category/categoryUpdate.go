@@ -1,5 +1,5 @@
 package category
 
-type CategoryCreate struct {
+type CategoryUpdate struct {
 	CategoryName string `json:"categoryName"`
 }

@@ -1,8 +1,19 @@
 package customer
 
-import "tugas-acp/models/base"
+import (
+	"time"
+)
 
 type CustomerResponse struct {
-	base.BaseResponse
-	Data []Customer `json:"data"`
+	CustomerId int       `json:"customerId"`
+	Email      string    `json:"email"`
+	Name       string    `json:"name"`
+	Token      string    `json:"token"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+}
+
+type LoginResponse struct {
+	Email string `json:"email"`
+	Token string `json:"token"`
 }

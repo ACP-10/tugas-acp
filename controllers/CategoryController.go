@@ -75,5 +75,5 @@ func DeleteCategoryController(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, categoryDB)
+	return c.JSON(http.StatusOK, "Success delete category.")
 }

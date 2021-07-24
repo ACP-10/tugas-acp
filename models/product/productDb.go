@@ -1,9 +1,11 @@
 package product
 
-import "time"
+import (
+	"time"
+)
 
 type Product struct {
-	ProductId    int       `json:"productId"`
+	ProductId    int       `json:"productId" gorm:"primaryKey"`
 	ProductName  string    `json:"productName"`
 	ProductPrice int       `json:"productPrice"`
 	Stock        int       `json:"stock"`
@@ -11,3 +13,5 @@ type Product struct {
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
+
+// CategoryId   category.Category `json:"categoryId" gorm:"foreignkey:categoryId;references:categoryName"`

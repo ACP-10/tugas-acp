@@ -5,8 +5,8 @@ import (
 	"tugas-acp/models/category"
 )
 
-func GetCategoryAll() (dataresult []category.Category, err error) {
-	err = configs.DB.Find(&dataresult).Error
+func GetAllCategory() (dataResult []category.Category, err error) {
+	err = configs.DB.Find(&dataResult).Error
 	if err != nil {
 		return nil, err
 	}

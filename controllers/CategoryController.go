@@ -30,7 +30,7 @@ func GetCategoryController(c echo.Context) error {
 	var categoryData []category.Category
 	var err error
 
-	categoryData, err = database.GetCategoryAll()
+	categoryData, err = database.GetAllCategory()
 
 	if err != nil {
 		return c.JSON(http.StatusOK, BaseResponse(
@@ -49,12 +49,12 @@ func GetCategoryController(c echo.Context) error {
 
 func UpdateCategoryController(c echo.Context) error {
 	var categoryUpdate category.CategoryUpdate
-	category_id, _ := strconv.Atoi(c.Param("id"))
+	categoryId, _ := strconv.Atoi(c.Param("id"))
 
 	c.Bind(&categoryUpdate)
 
 	var categoryDB category.Category
-	configs.DB.First(&categoryDB, "category_id", category_id)
+	configs.DB.First(&categoryDB, "category_id", categoryId)
 	categoryDB.CategoryName = categoryUpdate.CategoryName
 	err := configs.DB.Save(&categoryDB).Error
 
@@ -66,10 +66,10 @@ func UpdateCategoryController(c echo.Context) error {
 }
 
 func DeleteCategoryController(c echo.Context) error {
-	category_id, _ := strconv.Atoi(c.Param("id"))
+	categoryId, _ := strconv.Atoi(c.Param("id"))
 
 	var categoryDB category.Category
-	err := configs.DB.Where("category_id", category_id).Delete(&categoryDB).Error
+	err := configs.DB.Where("category_id", categoryId).Delete(&categoryDB).Error
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

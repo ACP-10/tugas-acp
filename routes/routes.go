@@ -16,6 +16,8 @@ func New() *echo.Echo {
 
 	e.GET("/cart", controllers.GetCartController)
 	e.POST("/cart", controllers.CreateCartController)
+	e.PUT("/cart/:id", controllers.UpdateCartController)
+	e.DELETE("/cart/:id", controllers.DeleteCartController)
 
 	return e
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 	"tugas-acp/configs"
 	"tugas-acp/lib/database"
 	"tugas-acp/models/cart"
@@ -34,7 +35,7 @@ func GetCartController(c echo.Context) error {
 	cartData, err = database.GetCartAll()
 
 	if err != nil {
-		return c.JSON(http.StatusOK, BaseResponse(
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
 			http.StatusInternalServerError,
 			"Failed Get Data",
 			cartData,
@@ -48,10 +49,33 @@ func GetCartController(c echo.Context) error {
 	))
 }
 
-// func UpdateCartController(c echo.Context) error {
-	
-// }
+func UpdateCartController(c echo.Context) error {
+	var cartUpdate cart.CartUpdate
+	cart_id, _ := strconv.Atoi(c.Param("id"))
 
-// func DeleteCartController(c echo.Context) error {
-	
-// }
+	c.Bind(&cartUpdate)
+
+	var cartDB cart.Cart
+	configs.DB.First(&cartDB, "cart_id", cart_id)
+	cartDB.IsCheckout = cartUpdate.IsCheckout
+	err := configs.DB.Save(&cartDB).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusCreated, cartDB)
+}
+
+func DeleteCartController(c echo.Context) error {
+	cart_id, _ := strconv.Atoi(c.Param("id"))
+
+	var cartDB cart.Cart
+	err := configs.DB.Where("cart_id", cart_id).Delete(&cartDB).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "Success delete Cart")
+}

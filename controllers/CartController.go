@@ -7,6 +7,7 @@ import (
 	"tugas-acp/lib/database"
 	"tugas-acp/models/cart"
 	cartitem "tugas-acp/models/cartItem"
+	"tugas-acp/models/payment"
 
 	"github.com/labstack/echo/v4"
 )
@@ -35,10 +36,10 @@ func GetCartController(c echo.Context) error {
 
 	customerId := c.QueryParam("customerId")
 
-	if customerId != ""{
-		customerId, _  := strconv.Atoi(customerId)
+	if customerId != "" {
+		customerId, _ := strconv.Atoi(customerId)
 		cartData, err = database.GetCartByCustomer(customerId, false)
-	} else{		
+	} else {
 		cartData, err = database.GetCartAll()
 	}
 
@@ -68,6 +69,24 @@ func UpdateCartController(c echo.Context) error {
 	cartDB.IsCheckout = cartUpdate.IsCheckout
 	err := configs.DB.Save(&cartDB).Error
 
+	if cartUpdate.IsCheckout {
+		// insert ke payment table
+		var paymentCreate payment.PaymentCreate
+		c.Bind(&paymentCreate)
+		var paymentDB payment.Payment
+		paymentDB.CartId = cart_id
+		total, e := database.GetTotalPayment(cart_id)
+		if e != nil {
+			return c.JSON(http.StatusInternalServerError, e.Error())
+		}
+
+		paymentDB.TotalPayment = total
+		er := configs.DB.Create(&paymentDB).Error
+		if er != nil {
+			return c.JSON(http.StatusInternalServerError, er.Error())
+		}
+	}
+
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -80,7 +99,7 @@ func DeleteCartController(c echo.Context) error {
 
 	var cartDB cart.Cart
 	err := configs.DB.Where("cart_id", cart_id).Delete(&cartDB).Error
-	configs.DB.Where("cart_id",cart_id).Delete(&cartitem.CartItem{})
+	configs.DB.Where("cart_id", cart_id).Delete(&cartitem.CartItem{})
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())

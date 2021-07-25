@@ -15,7 +15,7 @@ func Pay(c echo.Context) error {
 	c.Bind(&paymentUpdate)
 
 	var paymentDB payment.Payment
-	configs.DB.First(&paymentUpdate, "cart_id", cartId)
+	configs.DB.First(&paymentDB, "cart_id", cartId)
 	paymentDB.IsPaid = true
 	err := configs.DB.Save(&paymentDB).Error
 

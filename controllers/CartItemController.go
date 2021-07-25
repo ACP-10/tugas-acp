@@ -8,12 +8,12 @@ import (
 	"tugas-acp/middlewares"
 	"tugas-acp/models/cart"
 	cartitem "tugas-acp/models/cartItem"
+	"tugas-acp/models/product"
 
 	"github.com/labstack/echo/v4"
 )
 
-
-func CreateCartItemController(c echo.Context) error{
+func CreateCartItemController(c echo.Context) error {
 	var cartItemCreate cartitem.CartItemCreate
 	var cartCheck cart.Cart
 	var cartId int
@@ -31,9 +31,9 @@ func CreateCartItemController(c echo.Context) error{
 
 		err := configs.DB.Create(&cartDB).Error
 
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 
 		// return c.JSON(http.StatusInternalServerError, BaseResponse(
 		// 	http.StatusInternalServerError,
@@ -46,15 +46,34 @@ func CreateCartItemController(c echo.Context) error{
 	var cartItemDb cartitem.CartItem
 	if cartId != 0 {
 		cartItemDb.CartId = cartId
-	}else{
+	} else {
 		cartItemDb.CartId = cartItemCreate.CartId
 	}
 	cartItemDb.ProductId = cartItemCreate.ProductId
 	cartItemDb.Quantity = cartItemCreate.Quantity
 
+	// update quantity to product table
+	var productUpdate product.ProductUpdate
+	productId := cartItemCreate.ProductId
+	c.Bind(&productUpdate)
+
+	var productDB product.Product
+	configs.DB.First(&productDB, "product_id", productId)
+
+	if productDB.Stock < cartItemCreate.Quantity {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Create Data",
+			"Stock not available",
+		))
+	}
+
+	productDB.Stock -= cartItemCreate.Quantity
+	e := configs.DB.Save(&productDB).Error
+
 	err := configs.DB.Create(&cartItemDb).Error
 
-	if err != nil {
+	if err != nil && e != nil {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(
 			http.StatusInternalServerError,
 			"Failed Create Data",
@@ -126,7 +145,7 @@ func UpdateCartItemController(c echo.Context) error {
 	))
 }
 
-func DeleteCartItemController(c echo.Context)error{
+func DeleteCartItemController(c echo.Context) error {
 	cartItemId, _ := strconv.Atoi(c.Param("id"))
 
 	var cartItemDB cartitem.CartItem

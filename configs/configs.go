@@ -27,8 +27,8 @@ type ConfigDB struct {
 func InitConfigDB() ConfigDB {
 	var configDB = ConfigDB{
 		DB_Username: "root",
-		DB_Password: "",
-		// DB_Password: "Ikhda123", // comment this
+		// DB_Password: "",
+		DB_Password: "Ikhda123", // comment this
 		DB_Host:     "localhost",
 		DB_Port:     "3306",
 		DB_Database: "acp10",

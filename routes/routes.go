@@ -36,5 +36,7 @@ func New() *echo.Echo {
 	eAuth.PUT("/product/:id", controllers.UpdateProductController)
 	eAuth.DELETE("/product/:id", controllers.DeleteProductController)
 
+	eAuth.POST("/payment/:id", controllers.Pay)
+
 	return e
 }

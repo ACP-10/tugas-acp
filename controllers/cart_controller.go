@@ -18,9 +18,11 @@ func CreateCartController(c echo.Context) error {
 	var cartCreate cart.CartCreate
 	c.Bind(&cartCreate)
 
+	customerId := middlewares.GetUserIdFromJWT(c)
+
 	var cartDB cart.Cart
 	cartDB.IsCheckout = cartCreate.IsCheckout
-	cartDB.CustomerId = cartCreate.CustomerId
+	cartDB.CustomerId = customerId
 
 	err := configs.DB.Create(&cartDB).Error
 
@@ -32,7 +34,7 @@ func CreateCartController(c echo.Context) error {
 }
 
 func GetCartController(c echo.Context) error {
-	var cartData []cart.CartResult
+	var cartData cart.CartResult
 	var err error
 	var cartItem []cartitem.CartItemResult
 
@@ -40,38 +42,19 @@ func GetCartController(c echo.Context) error {
 
 	// customerId := c.QueryParam("customerId")
 	// if customerId != "" {
-	// 	customerId, _ := strconv.Atoi(customerId)
+		// customerId, _ := strconv.Atoi(c.Param("customerId"))
 	// 	cartData, err = database.GetCartByCustomer(customerId, false)
 	// } else {
 	// 	cartData, err = database.GetCartAll()
 	// }
 
-	cartAll := c.QueryParam("cartAll")
-	if cartAll == "true" {
-		var cartDataAll []cart.Cart
-		cartDataAll, err = database.GetCartAll()
-
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, BaseResponse(
-				http.StatusInternalServerError,
-				"Failed Get Data",
-				cartDataAll,
-			))
-		}
-	
-		return c.JSON(http.StatusOK, BaseResponse(
-			http.StatusOK,
-			"Success Get Data Cart",
-			cartDataAll,
-		))
-	}
 
 	customerId := middlewares.GetUserIdFromJWT(c)
 
 	cartData, err = database.GetCartByCustomer(customerId,false)
-	cartItem, _ = database.GetCartItemByCartId(cartData[0].CartId)
+	cartItem, _ = database.GetCartItemByCartId(cartData.CartId)
 	
-	cartData[0].Item = cartItem
+	cartData.Item = cartItem
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(

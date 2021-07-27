@@ -26,10 +26,10 @@ func New() *echo.Echo {
 	e.POST("/customer/register", controllers.RegisterCustomerController)
 	e.POST("/customer/login", controllers.LoginCustomerController)
 
-	eAuth.GET("/cartItem/:id", controllers.GetCartItemControllers)
-	eAuth.POST("/cartItem", controllers.CreateCartItemController)
-	eAuth.PUT("/cartItem/:id", controllers.UpdateCartItemController)
-	eAuth.DELETE("/cartItem/:id", controllers.DeleteCartItemController)
+	eAuth.GET("/cart/:id/item", controllers.GetCartItemControllers)
+	eAuth.POST("/cart/:id/item", controllers.CreateCartItemController)
+	eAuth.PUT("/cart/:id/item", controllers.UpdateCartItemController)
+	eAuth.DELETE("/cart/:id/item", controllers.DeleteCartItemController)
 
 	eAuth.GET("/product/:id", controllers.GetProductByCategoryController)
 	eAuth.POST("/product", controllers.CreateProductControler)

@@ -27,9 +27,9 @@ func New() *echo.Echo {
 	e.POST("/customer/login", controllers.LoginCustomerController)
 
 	eAuth.GET("/cart/:id/item", controllers.GetCartItemControllers)
-	eAuth.POST("/cart/:id/item", controllers.CreateCartItemController)
-	eAuth.PUT("/cart/:id/item", controllers.UpdateCartItemController)
-	eAuth.DELETE("/cart/:id/item", controllers.DeleteCartItemController)
+	eAuth.POST("/cart/:cartId/item", controllers.CreateCartItemController)
+	eAuth.PUT("/cart/:cartId/item/:id", controllers.UpdateCartItemController)
+	eAuth.DELETE("/cart/:cartId/item/:id", controllers.DeleteCartItemController)
 
 	eAuth.GET("/product/:id", controllers.GetProductByCategoryController)
 	eAuth.POST("/product", controllers.CreateProductControler)

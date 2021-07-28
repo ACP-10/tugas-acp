@@ -27,10 +27,19 @@ func CreateCartController(c echo.Context) error {
 	err := configs.DB.Create(&cartDB).Error
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		// return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Create Cart",
+			err.Error(),
+		))
 	}
-
-	return c.JSON(http.StatusOK, cartDB)
+	
+	return c.JSON(http.StatusOK, BaseResponse(
+		http.StatusOK,
+		"Success Create Cart",
+		cartDB,
+	))
 }
 
 func GetCartController(c echo.Context) error {
@@ -39,14 +48,8 @@ func GetCartController(c echo.Context) error {
 	var cartItem []cartitem.CartItemResult
 
 	// jika ingin memasukkan customerId sendiri
+	// customerId, _ := strconv.Atoi(c.QueryParam("customerId"))
 
-	// customerId := c.QueryParam("customerId")
-	// if customerId != "" {
-		// customerId, _ := strconv.Atoi(c.Param("customerId"))
-	// 	cartData, err = database.GetCartByCustomer(customerId, false)
-	// } else {
-	// 	cartData, err = database.GetCartAll()
-	// }
 
 
 	customerId := middlewares.GetUserIdFromJWT(c)
@@ -60,7 +63,7 @@ func GetCartController(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(
 			http.StatusInternalServerError,
 			"Failed Get Data",
-			cartData,
+			err.Error(),
 		))
 	}
 
@@ -78,7 +81,16 @@ func UpdateCartController(c echo.Context) error {
 	c.Bind(&cartUpdate)
 
 	var cartDB cart.Cart
-	configs.DB.First(&cartDB, "cart_id", cart_id)
+	er := configs.DB.First(&cartDB, "cart_id", cart_id).Error
+
+	if er != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartId not found",
+			"",
+		))
+	}
+
 	cartDB.IsCheckout = cartUpdate.IsCheckout
 	err := configs.DB.Save(&cartDB).Error
 
@@ -91,35 +103,84 @@ func UpdateCartController(c echo.Context) error {
 		paymentDB.IsPaid = false
 		total, e := database.GetTotalPayment(cart_id)
 		if e != nil {
-			return c.JSON(http.StatusInternalServerError, e.Error())
+			// return c.JSON(http.StatusInternalServerError, e.Error())
+			return c.JSON(http.StatusInternalServerError, BaseResponse(
+				http.StatusInternalServerError,
+				"Failed Get Total Payment",
+				e.Error(),
+			))
 		}
 
 		paymentDB.TotalPayment = total
 		er := configs.DB.Create(&paymentDB).Error
 		if er != nil {
-			return c.JSON(http.StatusInternalServerError, er.Error())
+			// return c.JSON(http.StatusInternalServerError, er.Error())
+
+			return c.JSON(http.StatusInternalServerError, BaseResponse(
+				http.StatusInternalServerError,
+				"Failed Create Payment",
+				er.Error(),
+			))
 		}
 
-		return c.JSON(http.StatusCreated, paymentDB)
+		// return c.JSON(http.StatusCreated, paymentDB)
+
+		return c.JSON(http.StatusOK, BaseResponse(
+			http.StatusCreated,
+			"Success Update Cart & Create Payment",
+			paymentDB,
+		))
 	}
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		// return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Update Cart",
+			err.Error(),
+		))
 	}
 
-	return c.JSON(http.StatusCreated, cartDB)
+	// return c.JSON(http.StatusCreated, cartDB)
+
+	return c.JSON(http.StatusOK, BaseResponse(
+		http.StatusOK,
+		"Success Update Cart",
+		cartDB,
+	))
 }
 
 func DeleteCartController(c echo.Context) error {
 	cart_id, _ := strconv.Atoi(c.Param("id"))
 
 	var cartDB cart.Cart
+
+	er := configs.DB.First(&cartDB, "cart_id", cart_id).Error
+
+	if er != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartId not found",
+			"",
+		))
+	}
+
 	err := configs.DB.Where("cart_id", cart_id).Delete(&cartDB).Error
 	configs.DB.Where("cart_id", cart_id).Delete(&cartitem.CartItem{})
 
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		// return c.JSON(http.StatusInternalServerError, err.Error())
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"Failed Delete Cart",
+			err.Error(),
+		))
+		
 	}
 
-	return c.JSON(http.StatusOK, "Success delete Cart")
+	return c.JSON(http.StatusOK, BaseResponse(
+		http.StatusOK,
+		"Success delete Cart",
+		"",
+	))
 }

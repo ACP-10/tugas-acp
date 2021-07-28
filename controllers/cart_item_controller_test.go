@@ -1,54 +1,118 @@
 package controllers
 
 import (
+	// "encoding/json"
+
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"testing"
-	"tugas-acp/configs"
 	cartitem "tugas-acp/models/cartItem"
-	"tugas-acp/models/category"
-	"tugas-acp/models/product"
+
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func CreateSeedProduct()  {
-	var ProductDB product.Product
-	ProductDB.ProductName = "PS4 Slim"
-	ProductDB.CategoryId = 1
-	ProductDB.ProductPrice = 2500000
-	ProductDB.Stock = 100
-	configs.DB.Create(ProductDB)
-}
-
-func CreateSeedCartItem()  {
-	var cartItemDB cartitem.CartItem
-	cartItemDB.CartId = 1
-	cartItemDB.ProductId = 1
-	cartItemDB.Quantity = 10
-	configs.DB.Create(cartItemDB)
-}
-
-func CreateSeedCategory()  {
-	var categoryDB category.Category
-	categoryDB.CategoryName = "Konsol"
-}
-
 func TestGetCartItemController(t *testing.T) {
 	e := InitEcho()
 	CreateSeedCustomer()
+	CreateSeedProduct()
+	CreateSeedCategory()
 	CreateSeedCart()
-	req,_ := http.NewRequest(http.MethodGet, "/cart/1/item", nil)
+	CreateSeedCartItem()
+
+	req,_ := http.NewRequest(http.MethodGet, "/", nil)
 
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
+	c.SetPath("/cart/:id/item")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
 
-	if assert.NoError(t, GetCartItemControllers(c)) {
+		if assert.NoError(t, GetCartItemControllers(c)) {
+
+			assert.Equal(t, http.StatusOK, rec.Code)
+			// fmt.Println(rec.Body.String())
+			body := rec.Body.String()
+			baseResponse := cartitem.CartItemResponse{}
+			if err := json.Unmarshal([]byte(body), &baseResponse); err != nil {
+				assert.Error(t, err, "Failed convert body to object")
+			}
+			assert.Equal(t, http.StatusOK, baseResponse.Code)
+		}
+
+}
+
+func TestCreateCartItemController(t *testing.T)  {
+	e := InitEcho()
+
+	input := []byte(`{"productId": 1, "quantity" : 10}`)
+
+	req,_ := http.NewRequest(http.MethodPost, "/", bytes.NewBuffer(input))
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/cart/:id/item")
+	c.SetParamNames("id")
+	c.SetParamValues("1")
+
+	if assert.NoError(t, CreateCartItemController(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
-		// fmt.Println(rec.Body.String())
 		body := rec.Body.String()
-		// baseResponse := cart.CartResponse{}
+		baseResponse := cartitem.CartItemResponse{}
+		if err := json.Unmarshal([]byte(body), &baseResponse); err != nil {
+			assert.Error(t, err, "Failed convert body to object")
+		}
+		t.Log(baseResponse)
+		assert.Equal(t, http.StatusOK, baseResponse.Code)
+	}
+}
+
+func TestUpdateCartItemController(t *testing.T)  {
+	e := InitEcho()
+
+	CreateSeedCart()
+	CreateSeedCartItem()
+
+	input := []byte(`{"quantity" : 10}`)
+
+	req,_ := http.NewRequest(http.MethodPut, "/", bytes.NewBuffer(input))
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/cart/:cartId/item/:id")
+	c.SetParamNames("cartId","id")
+	c.SetParamValues("1","1")
+
+	if assert.NoError(t, UpdateCartItemController(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		body := rec.Body.String()
+		baseResponse := cartitem.CartItemResponse{}
+		if err := json.Unmarshal([]byte(body), &baseResponse); err != nil {
+			assert.Error(t, err, "Failed convert body to object")
+		}
+		assert.Equal(t, http.StatusOK, baseResponse.Code)
+	}
+}
+
+func TestDeleteCartItemController(t *testing.T)  {
+	e := InitEcho()
+
+	CreateSeedCart()
+	CreateSeedCartItem()
+
+	req,_ := http.NewRequest(http.MethodDelete, "/", nil)
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetPath("/cart/:cartId/item/:id")
+	c.SetParamNames("cartId","id")
+	c.SetParamValues("1","1")
+
+	if assert.NoError(t, DeleteCartItemController(c)) {
+		assert.Equal(t, http.StatusOK, rec.Code)
+		body := rec.Body.String()
 		baseResponse := cartitem.CartItemResponse{}
 		if err := json.Unmarshal([]byte(body), &baseResponse); err != nil {
 			assert.Error(t, err, "Failed convert body to object")

@@ -13,6 +13,11 @@ func New() *echo.Echo {
 	eAuth := e.Group("")
 	eAuth.Use(middleware.JWT([]byte(constants.JWT_SECRET)))
 
+	e.GET("/test/category", controllers.GetCategoryController)
+	e.POST("/test/category", controllers.CreateCategoryController)
+	e.PUT("/test/category/:id", controllers.UpdateCategoryController)
+	e.DELETE("/test/category/:id", controllers.DeleteCategoryController)
+
 	eAuth.GET("/category", controllers.GetCategoryController)
 	eAuth.POST("/category", controllers.CreateCategoryController)
 	eAuth.PUT("/category/:id", controllers.UpdateCategoryController)

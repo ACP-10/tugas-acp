@@ -39,7 +39,7 @@ ERD and list API's
 
 ##### ERD
 
-![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image/Alterra.jpg?raw=true)
+![alt text](https://github.com/ACP-10/tugas-acp/blob/main/image/Alterra.jpg)
 
 ##### Feature of API's
 

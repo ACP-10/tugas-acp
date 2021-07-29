@@ -39,17 +39,7 @@ ERD and list API's
 
 ##### ERD
 
-![alt text](https://ibb.co/XjSxDBR)
-
-List tables and the relationship
-
-```seq
-Category->Product: has many
-CartItem->Product: has many
-Cart->CartItem: has many
-Payment->Cart: has
-Customer->Cart: has
-```
+![alt text](https://github.com/[username]/[reponame]/blob/[branch]/image/Alterra.jpg?raw=true)
 
 ##### Feature of API's
 

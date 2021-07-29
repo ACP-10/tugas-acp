@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"tugas-acp/configs"
 	"tugas-acp/lib/database"
-	"tugas-acp/middlewares"
 	"tugas-acp/models/cart"
 	cartitem "tugas-acp/models/cartItem"
 	"tugas-acp/models/product"
@@ -15,40 +14,19 @@ import (
 
 func CreateCartItemController(c echo.Context) error {
 	var cartItemCreate cartitem.CartItemCreate
-	var cartCheck cart.Cart
-	var cartId int
 	c.Bind(&cartItemCreate)
-
-	er := configs.DB.First(&cartCheck, "cart_id", cartItemCreate.CartId).Error
+	cartId, er := strconv.Atoi(c.Param("id"))
 
 	if er != nil {
-
-		customerId := middlewares.GetUserIdFromJWT(c)
-
-		var cartDB cart.Cart
-		cartDB.IsCheckout = false
-		cartDB.CustomerId = customerId
-
-		err := configs.DB.Create(&cartDB).Error
-
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
-
-		// return c.JSON(http.StatusInternalServerError, BaseResponse(
-		// 	http.StatusInternalServerError,
-		// 	"CartId not found",
-		// 	"",
-		// ))
-		cartId = cartDB.CartId
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusInternalServerError,
+			"CartId not found",
+			"",
+		))
 	}
 
 	var cartItemDb cartitem.CartItem
-	if cartId != 0 {
-		cartItemDb.CartId = cartId
-	} else {
-		cartItemDb.CartId = cartItemCreate.CartId
-	}
+	cartItemDb.CartId = cartId
 	cartItemDb.ProductId = cartItemCreate.ProductId
 	cartItemDb.Quantity = cartItemCreate.Quantity
 
@@ -73,19 +51,11 @@ func CreateCartItemController(c echo.Context) error {
 
 	err := configs.DB.Create(&cartItemDb).Error
 
-	if err != nil && e != nil {
+	if err != nil || e != nil {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(
 			http.StatusInternalServerError,
 			"Failed Create Data",
 			err.Error(),
-		))
-	}
-
-	if cartId != 0 {
-		return c.JSON(http.StatusOK, BaseResponse(
-			http.StatusOK,
-			"Success Create Data Cart&CartItem",
-			cartItemDb,
 		))
 	}
 
@@ -101,6 +71,17 @@ func GetCartItemControllers(c echo.Context) error {
 	var err error
 
 	id, _ := strconv.Atoi(c.Param("id"))
+
+	var cartDB cart.Cart
+	er := configs.DB.First(&cartDB, "cart_id", id).Error
+
+	if er != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartId not found",
+			"",
+		))
+	}
 
 	cartItemData, err = database.GetCartItemByCartId(id)
 
@@ -123,14 +104,50 @@ func UpdateCartItemController(c echo.Context) error {
 	var cartItemUpdate cartitem.CartItemUpdate
 	cartItemId, _ := strconv.Atoi(c.Param("id"))
 
+	cartId, _ := strconv.Atoi(c.Param("cartId"))
+	var cartDB cart.Cart
+	er := configs.DB.First(&cartDB, "cart_id", cartId).Error
+
+	if er != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartId not found",
+			"",
+		))
+	}
+
 	c.Bind(&cartItemUpdate)
 
 	var cartItemDb cartitem.CartItem
-	configs.DB.First(&cartItemDb, "item_id", cartItemId)
+	error := configs.DB.First(&cartItemDb, "item_id", cartItemId).Error
+
+	if error != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartItemId not found",
+			"",
+		))
+	}
+
+	//update product quantity
+		var productDB product.Product
+		configs.DB.First(&productDB, "product_id", cartItemDb.ProductId)
+
+		if productDB.Stock + cartItemDb.Quantity < cartItemUpdate.Quantity {
+			return c.JSON(http.StatusInternalServerError, BaseResponse(
+				http.StatusInternalServerError,
+				"Failed Create Data",
+				"Stock not available",
+			))
+		}
+
+		productDB.Stock += cartItemDb.Quantity - cartItemUpdate.Quantity
+		e := configs.DB.Save(&productDB).Error
+
 	cartItemDb.Quantity = cartItemUpdate.Quantity
 	err := configs.DB.Save(&cartItemDb).Error
 
-	if err != nil {
+	if err != nil || e != nil{
 		return c.JSON(http.StatusInternalServerError, BaseResponse(
 			http.StatusInternalServerError,
 			"Failed Update Data",
@@ -148,8 +165,36 @@ func UpdateCartItemController(c echo.Context) error {
 func DeleteCartItemController(c echo.Context) error {
 	cartItemId, _ := strconv.Atoi(c.Param("id"))
 
+	cartId, _ := strconv.Atoi(c.Param("cartId"))
+	var cartDB cart.Cart
+	er := configs.DB.First(&cartDB, "cart_id", cartId).Error
+
+	if er != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartId not found",
+			"",
+		))
+	}
+
 	var cartItemDB cartitem.CartItem
+
+	e := configs.DB.First(&cartItemDB, "item_id", cartItemId).Error
+
+	if e != nil {
+		return c.JSON(http.StatusInternalServerError, BaseResponse(
+			http.StatusNotFound,
+			"CartItemId not found",
+			"",
+		))
+	}
+
 	err := configs.DB.Where("item_id", cartItemId).Delete(&cartItemDB).Error
+
+	var productDB product.Product
+		configs.DB.First(&productDB, "product_id", cartItemDB.ProductId)
+		productDB.Stock += cartItemDB.Quantity
+		configs.DB.Save(&productDB)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, BaseResponse(

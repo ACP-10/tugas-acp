@@ -27,8 +27,8 @@ type ConfigDB struct {
 func InitConfigDB() ConfigDB {
 	var configDB = ConfigDB{
 		DB_Username: "root",
-		// DB_Password: "",
-		DB_Password: "Ikhda123", // comment this
+		DB_Password: "",
+		// DB_Password: "Ikhda123", // comment this
 		DB_Host:     "localhost",
 		DB_Port:     "3306",
 		DB_Database: "acp10",
@@ -61,4 +61,51 @@ func Migration() {
 	DB.AutoMigrate(&customer.Customer{})
 	DB.AutoMigrate(&product.Product{})
 	DB.AutoMigrate(&payment.Payment{})
+}
+
+//========Test
+
+func InitConfigDBTest() ConfigDB {
+	var configDB = ConfigDB{
+		DB_Username: "root",
+		DB_Password: "",
+		DB_Host:     "127.0.0.1",
+		DB_Port:     "3306",
+		DB_Database: "acp10_test",
+	}
+	return configDB
+}
+
+func InitDBTest() {
+	configDB := InitConfigDBTest()
+
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
+		configDB.DB_Username,
+		configDB.DB_Password,
+		configDB.DB_Host,
+		configDB.DB_Port,
+		configDB.DB_Database)
+
+	var error error
+	DB, error = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if error != nil {
+		panic("Database failed connection : " + error.Error())
+	}
+	MigrationTest()
+}
+
+func MigrationTest() {
+
+	DB.Migrator().DropTable(
+		&cart.Cart{},
+		&cartitem.CartItem{},
+		&customer.Customer{},
+		&product.Product{},
+		&category.Category{})
+	DB.AutoMigrate(
+		&cart.Cart{},
+		&cartitem.CartItem{},
+		&customer.Customer{},
+		&product.Product{},
+		&category.Category{})
 }

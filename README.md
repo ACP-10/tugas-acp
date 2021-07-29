@@ -89,5 +89,7 @@ git push origin [your_branch_name]
 ### Developers
 
 [Ikhda Muhammad Wildani](https://www.linkedin.com/in/ikhda-muhammad-wildani-b98a03164/)
+
 [Mohammad Chico Hernando](https://www.linkedin.com/in/mohammad-chico-hernando-33b587218/)
+
 [Your Name](https://google.com) - Come join !

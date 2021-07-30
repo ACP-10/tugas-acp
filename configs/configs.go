@@ -101,11 +101,13 @@ func MigrationTest() {
 		&cartitem.CartItem{},
 		&customer.Customer{},
 		&product.Product{},
-		&category.Category{})
+		&category.Category{},
+		&payment.Payment{})
 	DB.AutoMigrate(
 		&cart.Cart{},
 		&cartitem.CartItem{},
 		&customer.Customer{},
 		&product.Product{},
-		&category.Category{})
+		&category.Category{},
+		&payment.Payment{})
 }

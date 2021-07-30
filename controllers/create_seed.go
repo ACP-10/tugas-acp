@@ -19,8 +19,8 @@ func CreateSeedCart() {
 
 func CreateSeedCustomer() {
 	var customerDB customer.Customer
-	customerDB.Name = "coba customer"
-	customerDB.Email = "coba email customer"
+	customerDB.Name = "testing"
+	customerDB.Email = "testingCustomer@gmail.com"
 	customerDB.Password = "$2a$10$haoCB7WNi.cWxPyymGeubed.BXxra4f2DwIGsKy3URVMIC/iOkqwO"
 	configs.DB.Create(&customerDB)
 }

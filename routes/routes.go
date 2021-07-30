@@ -32,7 +32,7 @@ func New() *echo.Echo {
 	eAuth.DELETE("/cart/:cartId/item/:id", controllers.DeleteCartItemController)
 
 	eAuth.GET("/product/:id", controllers.GetProductByCategoryController)
-	eAuth.POST("/product", controllers.CreateProductControler)
+	eAuth.POST("/product", controllers.CreateProductController)
 	eAuth.PUT("/product/:id", controllers.UpdateProductController)
 	eAuth.DELETE("/product/:id", controllers.DeleteProductController)
 

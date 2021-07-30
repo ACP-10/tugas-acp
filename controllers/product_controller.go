@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func CreateProductControler(c echo.Context) error {
+func CreateProductController(c echo.Context) error {
 	var productCreate product.ProductCreate
 	c.Bind(&productCreate)
 
